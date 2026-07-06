@@ -1,6 +1,6 @@
 {
   "name": "react-bulk-excel-import",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Headless React hook for bulk Excel/CSV imports with row-level validation, error preview and progress tracking. Bring your own UI.",
   "keywords": [
     "react",
