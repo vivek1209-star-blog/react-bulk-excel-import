@@ -1,148 +1,142 @@
 # react-bulk-excel-import
 
-A tiny **headless React hook** that turns "upload an Excel file → validate rows → import to your API" into a few lines of code.
+**Add "Import from Excel" to your React app in one line.** 📄→✅
 
-No UI included, no styles forced on you — you get clean parsed data, validation errors and progress. You render it however you want.
+A ready-made import modal with drag & drop, validation preview (green/red rows), error messages, template download and progress bar — all built in. Zero setup, zero CSS files.
 
-## The problem
-
-Almost every app eventually needs a **"Bulk Upload via Excel"** feature — importing users, products, orders, contacts, anything.
-
-Doing it by hand means writing the same 200+ lines every time:
-
-1. Read the file with SheetJS
-2. Match column headers (users type `Email`, `email`, `E-mail`…)
-3. Validate every cell and collect readable errors
-4. Show the user which rows are OK and which are broken **before** calling the API
-5. Send data to the server in batches and show progress
-
-This library does steps 1–5 for you. **You write ~20 lines instead of ~200.**
-
-## Install
-
-```bash
-npm install react-bulk-excel-import xlsx
+```
+npm install react-bulk-excel-import
 ```
 
-> `react` (>=17) and `xlsx` are peer dependencies.
+That's it. `xlsx` is bundled — nothing else to install.
 
-## Quick start (a simple example)
-
-Let's import a sheet of users with 3 columns: **Name, Email, Age**.
+## One-line usage
 
 ```tsx
-import { useBulkImport } from "react-bulk-excel-import";
+import { ExcelImporter } from "react-bulk-excel-import";
 
-function UserImport() {
-  const { status, validRows, invalidRows, fileError, progress, parseFile, importRows } =
-    useBulkImport({
-      // 1. Describe your columns
-      columns: [
-        { header: "Name", key: "name", required: true },
-        {
-          header: "Email",
-          key: "email",
-          required: true,
-          validate: (v) => (String(v).includes("@") ? null : "Invalid email"),
-        },
-        { header: "Age", key: "age", transform: (v) => Number(v) },
-      ],
+<ExcelImporter
+  open={open}
+  onClose={() => setOpen(false)}
+  columns={[
+    { header: "Name", key: "name", required: true },
+    { header: "Email", key: "email", required: true },
+    { header: "Age", key: "age", transform: (v) => Number(v) },
+  ]}
+  onImport={async (rows) => {
+    await fetch("/api/users/bulk", { method: "POST", body: JSON.stringify(rows) });
+  }}
+/>
+```
 
-      // 2. Say what "import" means for you (any API call)
-      onImport: async (rows) => {
-        await fetch("/api/users/bulk", {
-          method: "POST",
-          body: JSON.stringify(rows),
-        });
-      },
-    });
+Full working example:
+
+```tsx
+import { useState } from "react";
+import { ExcelImporter } from "react-bulk-excel-import";
+
+function App() {
+  const [open, setOpen] = useState(false);
 
   return (
-    <div>
-      {/* 3. Wire up a file input */}
-      <input type="file" accept=".xlsx,.csv" onChange={(e) => parseFile(e.target.files[0])} />
+    <>
+      <button onClick={() => setOpen(true)}>Import Users</button>
 
-      {fileError && <p style={{ color: "red" }}>{fileError}</p>}
-
-      {status === "ready" && (
-        <>
-          <p>✅ {validRows.length} valid rows &nbsp; ❌ {invalidRows.length} rows with errors</p>
-          <button onClick={importRows}>Import {validRows.length} rows</button>
-        </>
-      )}
-
-      {status === "importing" && <p>Importing… {progress.percent}%</p>}
-      {status === "done" && <p>🎉 Done! {progress.total} rows imported.</p>}
-    </div>
+      <ExcelImporter
+        open={open}
+        onClose={() => setOpen(false)}
+        title="Import Users"
+        columns={[
+          { header: "Name", key: "name", required: true },
+          {
+            header: "Email",
+            key: "email",
+            required: true,
+            validate: (v) => (String(v).includes("@") ? null : "Invalid email"),
+          },
+          { header: "Age", key: "age", transform: (v) => Number(v) },
+        ]}
+        onImport={async (rows) => {
+          await fetch("/api/users/bulk", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(rows),
+          });
+        }}
+        onComplete={(count) => alert(`${count} users imported!`)}
+      />
+    </>
   );
 }
 ```
 
-That's the whole feature. File reading, header matching, validation, error rows, batching and progress — all handled.
+## What users see
 
-### Showing error details to users
+1. **Drop zone** — drag & drop or click to browse (.xlsx / .xls / .csv)
+2. **Download template** button — auto-generated from your columns
+3. **Preview table** — every row checked, invalid rows highlighted red with the exact error
+4. **Import button** — only valid rows are sent, in batches, with a live progress bar
+5. **Done screen** 🎉
 
-Every row tells you exactly what's wrong:
+## Why this instead of writing it yourself?
+
+Hand-rolling this feature means ~300 lines: SheetJS parsing, header matching (`Email` vs `email` vs `E-mail`), per-cell validation, error UI, batching, progress. With this library you write **only your columns and your API call**.
+
+## How much data can it handle?
+
+- Default limit: **5,000 rows** per file (change with `maxRows: 20000`)
+- 10k–20k rows parse comfortably in modern browsers
+- Rows are sent to your API in **batches of 50** by default (`batchSize` to change, `Infinity` for a single call)
+
+## ExcelImporter props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `open` | `boolean` | — | Show/hide the modal |
+| `onClose` | `() => void` | — | Close handler |
+| `columns` | `ColumnDef[]` | — | Your column definitions (see below) |
+| `onImport` | `(rows, ctx) => Promise` | — | Your API call. Throw to show an error |
+| `title` | `string` | `"Import from Excel"` | Modal heading |
+| `accentColor` | `string` | `#2563eb` | Buttons & progress bar color |
+| `showTemplateDownload` | `boolean` | `true` | Show the template button |
+| `onComplete` | `(count) => void` | — | Called after successful import |
+| `validateRow` | `(row, ctx) => errors` | — | Cross-row rules (e.g. duplicates in file) |
+| `batchSize` | `number` | `50` | Rows per `onImport` call |
+| `maxRows` | `number` | `5000` | Max rows per file |
+| `sheet` | `number \| string` | first sheet | Which sheet to read |
+
+### Column options
+
+| Option | Description |
+| --- | --- |
+| `header` | Header text in the sheet. Aliases supported: `["Email", "E-mail"]`. Case/space-insensitive |
+| `key` | Field name in your output objects |
+| `required` | Error when the cell is empty |
+| `transform` | Convert the value: `(v) => Number(v)` |
+| `validate` | Return an error string, or `null` if valid |
+
+## Advanced: build your own UI (headless hook)
+
+Want full control over the design? Use the same engine without the modal:
 
 ```tsx
-{invalidRows.map((row) => (
-  <p key={row.rowNumber}>
-    Row {row.rowNumber}: {row.errors.map((e) => e.message).join(", ")}
-  </p>
-))}
-// → "Row 4: email is required"
-// → "Row 7: Invalid email"
+import { useBulkImport } from "react-bulk-excel-import";
+
+const { status, rows, validRows, invalidRows, fileError, progress, parseFile, importRows, reset } =
+  useBulkImport({ columns, onImport });
 ```
 
-## How much data can I upload?
-
-- **Default limit: 5,000 rows** per file — safe for smooth browser performance.
-- Need more? Raise it: `maxRows: 20000`. Parsing happens in the browser, so 10k–20k rows works fine on modern machines; beyond ~50k rows consider splitting files.
-- **Batching:** valid rows are sent to your `onImport` in chunks (default **50 rows per API call**). Change with `batchSize: 100`, or send everything in one call with `batchSize: Infinity`.
-
-## All options
-
-| Option | Type | Default | What it does |
-| --- | --- | --- | --- |
-| `columns` | `ColumnDef[]` | — | Map sheet headers to your fields. Supports aliases: `header: ["Email", "E-mail"]` |
-| `onImport` | `(rows, ctx) => Promise` | — | Your API call. Throw an error to stop the import |
-| `validateRow` | `(row, ctx) => errors` | — | Cross-field rules, e.g. detect duplicates within the file |
-| `batchSize` | `number` | `50` | Rows per `onImport` call |
-| `maxRows` | `number` | `5000` | Reject files bigger than this |
-| `sheet` | `number \| string` | first sheet | Which sheet to read |
-| `acceptedExtensions` | `string[]` | `.xlsx .xls .csv` | Allowed file types |
-
-### Per-column options
-
-| Option | What it does |
-| --- | --- |
-| `header` | Header text in the sheet. Matching is case/space/underscore-insensitive |
-| `key` | Field name in your output object |
-| `required` | Adds an error when the cell is empty |
-| `transform` | Convert the raw cell, e.g. `(v) => Number(v)` |
-| `validate` | Return an error message string, or `null` when valid |
-
-## What you get back
-
-| Value | Meaning |
-| --- | --- |
-| `status` | `idle → parsing → ready → importing → done` (or `error`) |
-| `rows` | Every parsed row: `{ rowNumber, data, errors, isValid }` |
-| `validRows` / `invalidRows` | Pre-split for easy previews |
-| `fileError` | File-level problems (wrong type, empty sheet, missing columns, too many rows) |
-| `progress` | `{ imported, total, percent }` while importing |
-| `parseFile(file)` | Call with a `File` from an input or drag-and-drop |
-| `importRows()` | Sends all valid rows to your `onImport` |
-| `reset()` | Start over |
+You get parsed rows, valid/invalid splits, errors and progress — render them however you like. See the [types](./src/types.ts) for the full API.
 
 ## Features
 
-- 🪶 **Tiny & headless** — no UI, no CSS, works with any design system
-- 🔤 **Smart header matching** — `Email`, `email`, `E_MAIL` all match
+- ⚡ **One-line modal** — drag & drop, preview, errors, progress, all included
+- 📥 **Template download** — auto-generated from your column definitions
+- 🔤 **Smart header matching** — `Email` / `email` / `E_MAIL` all work
 - ✅ **3 validation layers** — required → per-column → cross-row
 - 📦 **Batched imports** with live progress
-- 🛡️ **Built-in file guards** — wrong extension, empty sheet, missing columns, row limit
-- 🟦 **TypeScript-first** — `useBulkImport<User>()` gives you fully typed rows
+- 🎨 **Headless hook** for custom UIs
+- 🟦 **TypeScript-first**, ESM + CJS
 
 ## License
 
