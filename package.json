@@ -1,0 +1,54 @@
+{
+  "name": "react-bulk-excel-import",
+  "version": "0.1.0",
+  "description": "Headless React hook for bulk Excel/CSV imports with row-level validation, error preview and progress tracking. Bring your own UI.",
+  "keywords": [
+    "react",
+    "excel",
+    "csv",
+    "bulk-import",
+    "xlsx",
+    "sheetjs",
+    "validation",
+    "hook",
+    "headless",
+    "upload"
+  ],
+  "author": "Vivek <your-email@example.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_GITHUB_USERNAME/react-bulk-excel-import.git"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "react": ">=17",
+    "xlsx": ">=0.18.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "react": "^18.3.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "xlsx": "^0.18.5"
+  }
+}
