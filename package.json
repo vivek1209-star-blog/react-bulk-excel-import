@@ -26,7 +26,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/vivek1209-star-blog/react-bulk-excel-import.git"
+    "url": "git+https://github.com/vivek1209-star-blog/react-bulk-excel-import.git"
   },
   "homepage": "https://github.com/vivek1209-star-blog/react-bulk-excel-import#readme",
   "bugs": {
