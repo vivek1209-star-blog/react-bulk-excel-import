@@ -1,6 +1,6 @@
 {
   "name": "react-bulk-excel-import",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "One-line Excel/CSV bulk import for React — built-in modal UI with validation preview, error highlighting and progress. Headless hook also included.",
   "keywords": [
     "react",
@@ -28,6 +28,10 @@
     "type": "git",
     "url": "https://github.com/vivek1209-star-blog/react-bulk-excel-import.git"
   },
+  "homepage": "https://github.com/vivek1209-star-blog/react-bulk-excel-import#readme",
+  "bugs": {
+    "url": "https://github.com/vivek1209-star-blog/react-bulk-excel-import/issues"
+  },
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -43,6 +47,9 @@
     "dist"
   ],
   "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts --clean --external react --external react-dom",
     "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
@@ -61,7 +68,6 @@
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "tsup": "^8.0.0",
-    "typescript": "^5.4.0",
-    "xlsx": "^0.18.5"
+    "typescript": "^5.4.0"
   }
 }

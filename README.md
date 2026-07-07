@@ -1,5 +1,9 @@
 # react-bulk-excel-import
 
+[![npm version](https://img.shields.io/npm/v/react-bulk-excel-import.svg)](https://www.npmjs.com/package/react-bulk-excel-import)
+[![npm downloads](https://img.shields.io/npm/dm/react-bulk-excel-import.svg)](https://www.npmjs.com/package/react-bulk-excel-import)
+[![license](https://img.shields.io/npm/l/react-bulk-excel-import.svg)](https://github.com/vivek1209-star-blog/react-bulk-excel-import/blob/main/LICENSE)
+
 **Add "Import from Excel" to your React app in one line.** 📄→✅
 
 A ready-made import modal with drag & drop, validation preview (green/red rows), error messages, template download and progress bar — all built in. Zero setup, zero CSS files.
@@ -126,7 +130,7 @@ const { status, rows, validRows, invalidRows, fileError, progress, parseFile, im
   useBulkImport({ columns, onImport });
 ```
 
-You get parsed rows, valid/invalid splits, errors and progress — render them however you like. See the [types](./src/types.ts) for the full API.
+You get parsed rows, valid/invalid splits, errors and progress — render them however you like. See the [full type definitions](https://github.com/vivek1209-star-blog/react-bulk-excel-import/blob/main/src/types.ts) for the complete API.
 
 ## Features
 
@@ -137,6 +141,12 @@ You get parsed rows, valid/invalid splits, errors and progress — render them h
 - 📦 **Batched imports** with live progress
 - 🎨 **Headless hook** for custom UIs
 - 🟦 **TypeScript-first**, ESM + CJS
+
+## Links
+
+- 📦 [npm](https://www.npmjs.com/package/react-bulk-excel-import)
+- 💻 [GitHub](https://github.com/vivek1209-star-blog/react-bulk-excel-import)
+- 🐛 [Report issues](https://github.com/vivek1209-star-blog/react-bulk-excel-import/issues)
 
 ## License
 
